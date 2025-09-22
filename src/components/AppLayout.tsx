@@ -6,7 +6,6 @@ import { Sidebar } from './Sidebar'
 import { NoteList } from './NoteList'
 import { Editor } from './Editor'
 import { Settings } from './Settings'
-import { PolishModal } from './PolishModal'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
 import { Note } from '@/types/note'
 import { AIAPI, APIKeyManager } from '@/lib/api'
@@ -16,9 +15,6 @@ export function AppLayout() {
   const [notes, setNotes] = useLocalStorage<Note[]>({ key: 'notes', defaultValue: [] })
   const [selectedNoteId, setSelectedNoteId] = useState<string>()
   const [showSettings, setShowSettings] = useState(false)
-  const [showPolishModal, setShowPolishModal] = useState(false)
-  const [originalContent, setOriginalContent] = useState('')
-  const [polishedContent, setPolishedContent] = useState('')
   const [aiAPI, setAiAPI] = useState<AIAPI | null>(null)
 
   // 初始化 AI API
@@ -76,45 +72,6 @@ export function AppLayout() {
     return await aiAPI.polishContent(content)
   }, [aiAPI])
 
-  const handleOpenPolishModal = useCallback(async () => {
-    if (!selectedNote) {
-      alert('请先选择一个笔记')
-      return
-    }
-    
-    if (!selectedNote.content.trim()) {
-      alert('请先输入笔记内容')
-      return
-    }
-    
-    if (!aiAPI) {
-      alert('AI API 未配置，请先在设置中配置API密钥')
-      return
-    }
-    
-    setOriginalContent(selectedNote.content)
-    setPolishedContent('')
-    setShowPolishModal(true)
-
-    try {
-      const polished = await aiAPI.polishContent(selectedNote.content)
-      setPolishedContent(polished)
-    } catch (error) {
-      console.error('润色失败:', error)
-      setPolishedContent(`润色失败: ${error instanceof Error ? error.message : '未知错误'}\n\n请检查：\n1. 是否已配置API密钥（点击设置按钮）\n2. 网络连接是否正常\n3. API密钥是否有效`)
-    }
-  }, [selectedNote, aiAPI])
-
-  const handleApplyPolishedContent = useCallback((content: string) => {
-    if (selectedNote) {
-      handleUpdateNote({
-        ...selectedNote,
-        content,
-        updatedAt: new Date().toISOString()
-      })
-    }
-  }, [selectedNote, handleUpdateNote])
-
   const handleSaveSettings = useCallback((apiKey: string) => {
     if (apiKey) {
       APIKeyManager.setKey(apiKey)
@@ -163,7 +120,6 @@ export function AppLayout() {
             onGenerateTitle={handleGenerateTitle}
             onGenerateTags={handleGenerateTags}
             onPolishContent={handlePolishContent}
-            onOpenPolishModal={handleOpenPolishModal}
           />
         </Card>
       </div>
@@ -173,15 +129,6 @@ export function AppLayout() {
         isOpen={showSettings}
         onClose={() => setShowSettings(false)}
         onSaveSettings={handleSaveSettings}
-      />
-
-      {/* Polish Modal */}
-      <PolishModal
-        isOpen={showPolishModal}
-        onClose={() => setShowPolishModal(false)}
-        originalContent={originalContent}
-        polishedContent={polishedContent}
-        onApplyPolished={handleApplyPolishedContent}
       />
     </div>
   )

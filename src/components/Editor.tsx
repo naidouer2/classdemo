@@ -15,7 +15,6 @@ interface EditorProps {
   onGenerateTitle: (content: string) => Promise<string>
   onGenerateTags: (content: string) => Promise<string[]>
   onPolishContent: (content: string) => Promise<string>
-  onOpenPolishModal: () => void
 }
 
 export function Editor({ 
@@ -23,8 +22,7 @@ export function Editor({
   onUpdateNote, 
   onGenerateTitle, 
   onGenerateTags, 
-  onPolishContent, 
-  onOpenPolishModal 
+  onPolishContent
 }: EditorProps) {
   const [isPreview, setIsPreview] = useState(false)
   const [isGeneratingTitle, setIsGeneratingTitle] = useState(false)
@@ -283,16 +281,6 @@ export function Editor({
             {isPolishing ? '润色中...' : '润色内容'}
           </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onOpenPolishModal}
-            disabled={!note.content.trim() || !hasApiKey}
-            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-white/50 border-white/30 hover:bg-gradient-to-r hover:from-purple-500 hover:to-pink-500 hover:text-white hover:border-transparent transition-all duration-200 disabled:opacity-50"
-          >
-            <Eye className="w-4 h-4" />
-            对比查看
-          </Button>
         </div>
       </div>
 
