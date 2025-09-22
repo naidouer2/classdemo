@@ -1,9 +1,11 @@
 "use client"
 
 import { useState } from 'react'
-import { Plus, Settings, FileText } from 'lucide-react'
+import { Plus, Settings, FileText, FolderOpen } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Note } from '@/types/note'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 interface SidebarProps {
   notes: Note[]
@@ -15,6 +17,7 @@ interface SidebarProps {
 
 export function Sidebar({ notes, onNewNote, onSelectNote, selectedNoteId, onOpenSettings }: SidebarProps) {
   const [searchQuery, setSearchQuery] = useState('')
+  const pathname = usePathname()
 
   const filteredNotes = notes.filter(note =>
     note.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -40,6 +43,34 @@ export function Sidebar({ notes, onNewNote, onSelectNote, selectedNoteId, onOpen
           >
             <Settings className="w-4 h-4 text-gray-600" />
           </Button>
+        </div>
+        
+        {/* Navigation */}
+        <div className="space-y-2 mb-6">
+          <Link href="/notes">
+            <Button
+              variant={pathname === '/notes' ? 'default' : 'ghost'}
+              className={`w-full justify-start ${pathname === '/notes' 
+                ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white' 
+                : 'hover:bg-white/50'
+              }`}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              笔记
+            </Button>
+          </Link>
+          <Link href="/projects">
+            <Button
+              variant={pathname === '/projects' ? 'default' : 'ghost'}
+              className={`w-full justify-start ${pathname === '/projects' 
+                ? 'bg-gradient-to-r from-blue-500 to-purple-500 text-white' 
+                : 'hover:bg-white/50'
+              }`}
+            >
+              <FolderOpen className="w-4 h-4 mr-2" />
+              项目
+            </Button>
+          </Link>
         </div>
         
         <Button
